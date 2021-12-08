@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+. default.conf
+ETC="/etc"
+
+echo "Removing files..."
+
+if [ -f "$SHARE/up.flac" ]; then
+  rm "$SHARE/up.flac"
+fi
+
+if [ -f "$SHARE/down.flac" ]; then
+  rm "$SHARE/down.flac"
+fi
+
+if [ -d "$SHARE" ]; then
+  if [ "$(ls -A $SHARE)" ]; then
+    echo "Skip deleting $SHARE. Not empty"
+  else
+    rm -r "$SHARE"
+  fi
+fi
+
+if [ -f "$BIN/memeat" ]; then
+  rm "$BIN/memeat"
+fi
+
+if [ -f "$ETC/memeat.conf" ]; then
+  rm "$ETC/memeat.conf"
+fi
+
+echo "Done"

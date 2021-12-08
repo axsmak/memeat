@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+if [ -f "$HOME/.memeat" ]; then
+  . "$HOME/.memeat"
+elif [ -f "/etc/memeat.conf" ]; then
+  . "/etc/memeat.conf"
+elif [ -f "$ROOT/memeat.conf" ]; then
+  . "$ROOT/memeat.conf"
+elif [ -f "$ROOT/default.conf" ]; then
+  . "$ROOT/default.conf"
+else
+  SHARE="/usr/share/memeat"
+  DELAY=3
+  STEP=250
+fi
+
+ROOT="$(dirname $(realpath $0))"
+FILE="$(basename $0)"
+
+if [ -z `which play` ]; then
+  echo "Install the sox first"
+  exit 1
+fi
+
+if [ ! -f "$SHARE/up.flac" ]; then
+  echo "No $SHARE/up.flac file"
+  exit 2
+fi
+
+if [ ! -f "$SHARE/down.flac" ]; then
+  echo "No $SHARE/down.flac file"
+  exit 3
+fi
+
+getMem() {
+  USED=$(free --mebi | grep Mem | awk '{print $3}')
+  echo "$USED"
+}
+
+MEM=$(getMem)
+UPMEM=$(($MEM + $STEP))
+DOWNMEM=$(($MEM - $STEP))
+
+while [ 1 ]; do
+  MEM=$(getMem)
+  if [ $MEM -ge $UPMEM ]; then
+    UPMEM=$(($MEM + $STEP))
+    DOWNMEM=$(($MEM - $STEP))
+    play -qV1 "$SHARE/up.flac"
+  elif [ $MEM -le $DOWNMEM ]; then
+    UPMEM=$(($MEM + $STEP))
+    DOWNMEM=$(($MEM - $STEP))
+    play -qV1 "$SHARE/down.flac"
+  fi
+  sleep $DELAY
+done

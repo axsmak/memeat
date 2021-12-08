@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+
+. default.conf
+ETC="/etc"
+
+echo "Checking dependencies..."
+
+if [ -z `which play` ]; then
+  echo "sox installing..."
+  apt install -y sox
+  if [ "$?" -eq 0 ]; then
+    echo "Installed"
+  else
+    echo "Install sox failed. Exiting..."
+    exit 1
+  fi
+else
+  echo "sox installed"
+fi
+
+echo "All right!"
+echo ""
+echo "Checking files..."
+
+files=("main" "up.flac" "down.flac" "default.conf")
+for file in ${files[@]}; do
+  if [ -f "$file" ]; then
+    echo "$file exists"
+  else
+    echo "$file does not exist"
+    echo "Exiting..."
+    exit 2
+  fi
+done
+
+echo "All right!"
+echo ""
+echo "Folders..."
+
+if [ -d "$ETC" ]; then
+  echo "$ETC is already exists"
+else
+  echo "Creating directory $ETC"
+  mkdir -p "$ETC"
+  if [ "$?" -eq 0 ]; then
+    echo "Created!"
+  else
+    echo "Failed!"
+    echo "Exiting..."
+    exit 3
+  fi
+fi
+
+if [ -d "$SHARE" ]; then
+  echo "$SHARE is already exists"
+else
+  echo "Creating directory $SHARE"
+  mkdir -p "$SHARE"
+  if [ "$?" -eq 0 ]; then
+    echo "Created!"
+  else
+    echo "Failed!"
+    echo "Exiting..."
+    exit 3
+  fi
+fi
+
+if [ -d "$BIN" ]; then
+  echo "$BIN is already exists"
+else
+  echo "Creating directory $BIN"
+  mkdir -p "$BIN"
+  if [ "$?" -eq 0 ]; then
+    echo "Created!"
+  else
+    echo "Failed!"
+    echo "Exiting..."
+    exit 3
+  fi
+fi
+
+echo "All right!"
+echo ""
+echo "Installing..."
+
+echo "Install $SHARE/up.flac"
+cp up.flac "$SHARE/up.flac"
+if [ "$?" -eq 0 ]; then
+  echo "Success"
+else
+  echo "Failed!"
+  echo "Exiting..."
+  exit 4
+fi
+
+echo "Install $SHARE/down.flac"
+cp down.flac "$SHARE/down.flac"
+if [ "$?" -eq 0 ]; then
+  echo "Success"
+else
+  echo "Failed!"
+  echo "Exiting..."
+  exit 4
+fi
+
+echo "Install $ETC/memeat.conf"
+if [ -f "$ETC/memeat.conf" ]; then
+  echo "Skip. $ETC/memeat.conf is already exists"
+else
+  cp default.conf "$ETC/memeat.conf"
+  if [ "$?" -eq 0 ]; then
+    echo "Success"
+  else
+    echo "Failed!"
+    echo "Exiting..."
+    exit 4
+  fi
+fi
+
+echo "Install $BIN/memeat"
+cp main "$BIN/memeat"
+if [ "$?" -eq 0 ]; then
+  echo "Success"
+else
+  echo "Failed!"
+  echo "Exiting..."
+  exit 4
+fi
+
+echo "Set permissions for $BIN/memeat"
+chmod +x "$BIN/memeat"
+if [ "$?" -eq 0 ]; then
+  echo "Success"
+else
+  echo "Failed!"
+  echo "Exiting..."
+  exit 5
+fi
+
+echo "All right!"
+echo ""
+echo "Done. Enjoy!"
